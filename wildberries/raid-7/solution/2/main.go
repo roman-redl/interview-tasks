@@ -5,12 +5,9 @@ import (
 )
 
 func main() {
-	s := "asdq"
-	// s[0] = 'r' // compilation error
-	println(s)
-
 	slices()
-	printString()
+	slices2()
+	slices3()
 }
 
 func slices() {
@@ -41,12 +38,4 @@ func slices3() {
 	b = append(b, "e")
 	b[0] = "x"
 	fmt.Println(a)
-}
-
-func printString() {
-	s := "Юadsf"
-
-	for i := range s {
-		fmt.Println(i) // 0 2 3 4 5
-	}
 }
