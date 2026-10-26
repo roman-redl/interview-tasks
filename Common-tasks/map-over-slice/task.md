@@ -1,4 +1,8 @@
-Задача спроектировать собственную map с заданными методами
+# Собственная реализация map
+
+Спроектировать собственную map с заданными методами:
+
+```go
 /**
  * Your MyHashMap object will be instantiated and called as such:
  * obj := Constructor();
@@ -6,3 +10,4 @@
  * param_2 := obj.Get(key);
  * obj.Remove(key);
  */
+```
