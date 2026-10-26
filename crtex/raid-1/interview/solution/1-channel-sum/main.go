@@ -5,7 +5,6 @@ import (
 	"sync"
 )
 
-// 1. Починить код, чтобы выводилась сумма всех чисел
 func main() {
 	ch := make(chan int)
 	wg := &sync.WaitGroup{}

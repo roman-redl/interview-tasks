@@ -115,3 +115,6 @@ type AddItemRequest struct {
 }
 
 type EmptyResponse struct{}
+
+// Точка входа для самостоятельной сборки пакета; демонстрации нет — метод предназначен для grpc-сервера.
+func main() {}
