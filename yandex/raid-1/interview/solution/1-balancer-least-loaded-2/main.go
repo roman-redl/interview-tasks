@@ -66,6 +66,7 @@ func NewBackend(addr string) *BackendImpl {
 
 type Balancer struct {
 	backends           []*BackendWithCounter
+	minBackend         *BackendWithCounter
 	currentBackCounter *atomic.Int32
 	mu                 *sync.Mutex
 }
@@ -84,9 +85,8 @@ func NewBalancer(addrs []string) *Balancer {
 	}
 
 	return &Balancer{
-		backends:           backends,
-		currentBackCounter: &atomic.Int32{},
-		mu:                 &sync.Mutex{},
+		backends: backends,
+		mu:       &sync.Mutex{},
 	}
 }
 
@@ -101,50 +101,50 @@ func (b *Balancer) Invoke(ctx context.Context, req Request) (Response, error) {
 	}
 	b.mu.Unlock()
 
-	back := b.backends[int(b.currentBackCounter.Load())%len(b.backends)]
-	b.currentBackCounter.Add(1)
-
 	for i := 0; i < len(b.backends); i++ {
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
 		}
 
-		backNext := b.backends[int(b.currentBackCounter.Load())%len(b.backends)]
 		b.mu.Lock()
-		if back.invokeCounter.Load() > backNext.invokeCounter.Load() && !backNext.block {
-			back = backNext
-			b.currentBackCounter.Add(1)
-		} else if i < len(b.backends)-1 {
-			continue
+		minInvokes := int32(-1)
+		if b.minBackend == nil || b.minBackend.block {
+			for _, back := range b.backends {
+				if !back.block && (minInvokes == -1 || back.invokeCounter.Load() < minInvokes) {
+					b.minBackend = back
+					minInvokes = back.invokeCounter.Load()
+				}
+			}
 		}
-		if i == len(b.backends)-1 && back.block {
+		if b.minBackend == nil {
+			b.mu.Unlock()
 			break
 		}
+		selected := b.minBackend
 		b.mu.Unlock()
 
-		back.invokeCounter.Add(1)
-		resp, err := back.b.Invoke(ctx, req)
-		back.invokeCounter.Add(-1)
+		selected.invokeCounter.Add(1)
+		resp, err := selected.b.Invoke(ctx, req)
+		selected.invokeCounter.Add(-1)
 		if err != nil {
 			b.mu.Lock()
-			back.errorsCounter++
-			if back.errorsCounter == 1 {
-				back.t = time.Now()
+			selected.errorsCounter++
+			if selected.errorsCounter == 1 {
+				selected.t = time.Now()
 			}
-			if back.errorsCounter >= n && time.Since(back.t) <= x {
-				back.block = true
-				b.mu.Unlock()
+			if selected.errorsCounter >= n && time.Since(selected.t) <= x {
+				selected.block = true
+				b.minBackend = nil
+			}
+			b.mu.Unlock()
 
-				continue
-			} else {
-				b.mu.Unlock()
-				return nil, err
-			}
+			continue
 		}
 
 		b.mu.Lock()
-		back.errorsCounter = 0
-		back.t = time.Time{}
+		selected.errorsCounter = 0
+		selected.t = time.Time{}
+		b.minBackend = nil
 		b.mu.Unlock()
 
 		return resp, nil
@@ -152,3 +152,6 @@ func (b *Balancer) Invoke(ctx context.Context, req Request) (Response, error) {
 
 	return nil, fmt.Errorf("all backends are blocked")
 }
+
+// Решение — библиотечный код; main нужен, чтобы пакет компилировался и запускался сам по себе.
+func main() {}

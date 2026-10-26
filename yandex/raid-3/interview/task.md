@@ -40,3 +40,50 @@ func (wp *WorkerPool) Stop() error
 // включая находящиеся в очереди.
 func (wp *WorkerPool) StopWait() error
 ```
+
+## 3. Шедулер задач с ограниченным процессингом
+
+Реализовать шедулер, который:
+
+- быстро принимает входящие задания;
+- отдаёт результат задания по запросу;
+- если результата нет, возвращает соответствующий статус.
+
+Процессор — сервис, который выполняет долгую ресурсоёмкую операцию; он уже реализован. Возвращаемые им ошибки связаны исключительно с некорректными входными данными, устойчивы, и перезапрашивать их бесполезно. Также считается, что есть генератор уникальных идентификаторов (например, UUID), гарантирующий отсутствие коллизий.
+
+Шедулер принимает от клиентов задачи, ставит их в очередь и запускает в процессинг; обеспечивает, что единовременно запущено не более threads методов Process; даёт возможность проверить статус задачи и получить результат; не блокирует методы своего публичного интерфейса на процессинг.
+
+```go
+type Processor interface {
+    Process([]byte) ([]byte, error)
+}
+
+type ID string
+// func NewID() ID
+
+type Scheduler struct {
+    processor Processor
+}
+
+func NewScheduler(
+    prc Processor,
+    threads int,
+) *Scheduler {
+    // todo initialization logic
+    return &Scheduler{
+        processor: prc,
+    }
+}
+
+func (s *Scheduler) Queue(request []byte) ID {
+    // todo implement
+    return ""
+}
+
+func (s *Scheduler) Status(id ID) (status string, result []byte, err error) {
+    //todo implement
+    return
+}
+```
+
+Усложнения: сделать дедупликацию — если приходит одинаковый request, повторно не процессировать; graceful shutdown.

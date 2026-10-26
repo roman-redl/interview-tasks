@@ -63,14 +63,6 @@ func NewScheduler(
 func (s *Scheduler) Queue(request []byte) ID {
 	id := NewID()
 
-	/*
-		s.mu.Lock()
-		job := s.result[id] // тут не совсем правильно было на собесе, нужно было создать новый job
-		job.status = "queued"
-		s.result[id] = job
-		s.mu.Unlock()
-	*/
-
 	s.mu.Lock()
 	s.result[id] = job{status: "pending"}
 	s.mu.Unlock()
@@ -101,7 +93,7 @@ func (s *Scheduler) Queue(request []byte) ID {
 
 func (s *Scheduler) Status(id ID) (status string, result []byte, err error) {
 	s.mu.Lock()
-	defer s.mu.Unlock() // забыл сделать unlock на собесе
+	defer s.mu.Unlock()
 
 	res, ok := s.result[id]
 	if !ok {
@@ -110,3 +102,6 @@ func (s *Scheduler) Status(id ID) (status string, result []byte, err error) {
 
 	return res.status, res.result, res.err
 }
+
+// Решение — библиотечный код; main нужен, чтобы пакет компилировался и запускался сам по себе.
+func main() {}
