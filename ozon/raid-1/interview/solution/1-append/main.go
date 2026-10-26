@@ -27,7 +27,7 @@ import (
 //	fmt.Println(x, y, z)
 //}
 
-// [1 2 3] [0 1 2 4] [0 1 2 4]
+// [0 1 2] [0 1 2 4] [0 1 2 4]
 func a() {
 	x := []int{}
 	x = append(x, 0)

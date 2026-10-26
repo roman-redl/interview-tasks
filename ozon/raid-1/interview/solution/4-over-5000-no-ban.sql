@@ -32,17 +32,8 @@ CREATE TABLE ban_list
 INSERT INTO ban_list (user_id, date)
 VALUES (1, '2021-03-08');
 
-SELECT *
-FROM userr;
-
--- task 3
-
-SELECT DISTINCT userr.first_name, userr.last_name, purchase.sku
-FROM userr
-         INNER JOIN purchase ON userr.id = purchase.user_id
-WHERE purchase.date >= '2021-02-01' AND purchase.date < '2021-03-01';
-
--- task 4
+-- Задача 4: список уникальных клиентов, совершивших покупку товаров
+-- на сумму больше 5000 и не имеющих бана
 
 SELECT DISTINCT userr.first_name, userr.last_name, purchase.price
 FROM userr
