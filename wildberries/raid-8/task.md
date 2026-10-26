@@ -1,7 +1,7 @@
 # Wildberries (Bank) — заход 8, техническое интервью
 
 - Даты: 2025-12-17
-- Формат: SQL (схема, запросы, индексы) + Go (слайсы, указатели, консистентность, семафор)
+- Формат: SQL (схема, запросы, индексы) + Go (слайсы, фильтрация in-place, указатели, консистентность, семафор)
 
 ## 1. Схема библиотеки и топ авторов
 
@@ -55,6 +55,8 @@ create index employees (male, salary, age)
 
 ```go
 package main
+
+import "fmt"
 
 func main() {
 	nums := make([]int, 1, 2)
@@ -169,7 +171,7 @@ func proccess(abc []string) map[string][]int {
 }
 
 type struct semaphore {
-	ch chan struct{}
+	chan struct{} ch
 }
 
 func NewSemaphore(thr int) semaphore {
@@ -185,4 +187,22 @@ func (s *semaphore) Acquire() {
 func (s *semaphore) Release() {
 	<-s.ch
 }
+```
+
+## 7. Фильтрация слайса на месте
+
+Написать функцию, не создавая новый слайс; можно обрезать слайс.
+
+```go
+func filter(a []int) []int {
+
+}
+```
+
+Примеры из условия:
+
+```go
+[1,2,3,4,5] -> [1,3,5]
+[2,2,2]     -> []
+[1,2,2]     -> [1]
 ```
