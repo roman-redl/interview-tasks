@@ -11,4 +11,4 @@ func filter(a []int) []int {
 }
 ```
 
-Встречена: МТС Digital (~2024-04), Wildberries Bank (2025-12-17, [задача 7](../../wildberries/raid-8/task.md)).
+Встречена: МТС Digital (~2024-04, [задача 1](../../mts-digital/raid-1/interview/task.md)), Wildberries Bank (2025-12-17, [задача 7](../../wildberries/raid-8/task.md)).
