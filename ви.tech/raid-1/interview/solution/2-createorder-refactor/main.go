@@ -148,3 +148,5 @@ type OrderClient struct{}
 func (c *OrderClient) CreateOrder(productID int64) error {
 	return nil
 }
+
+func main() {}
